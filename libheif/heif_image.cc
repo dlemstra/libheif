@@ -26,6 +26,7 @@
 #include <cstring>
 
 #include <utility>
+#include <iostream>
 
 using namespace heif;
 
@@ -170,6 +171,7 @@ bool HeifPixelImage::add_plane(heif_channel channel, int width, int height, int 
   }
 }
 
+static int total = 0;
 
 bool HeifPixelImage::ImagePlane::alloc(int width, int height, int bit_depth, heif_chroma chroma)
 {
@@ -208,7 +210,11 @@ bool HeifPixelImage::ImagePlane::alloc(int width, int height, int bit_depth, hei
   stride = (stride + alignment - 1U) & ~(alignment - 1U);
 
   try {
+    int size = m_mem_height * stride + alignment - 1;
+    total += size;
+    std::cout << "ALLOC: " << size << " <> " << total << std::endl;
     allocated_mem = new uint8_t[m_mem_height * stride + alignment - 1];
+    std::cout << "SUCCESS" << std::endl;
     mem = allocated_mem;
 
     // shift beginning of image data to aligned memory position
@@ -222,6 +228,7 @@ bool HeifPixelImage::ImagePlane::alloc(int width, int height, int bit_depth, hei
     return true;
   }
   catch (const std::bad_alloc& excpt) {
+    std::cout << "FAIL" << std::endl;
     return false;
   }
 }
